@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xtk.shop.model.LikeList">
+	<insert id="add" parameterType="com.xtk.shop.model.LikeList">
+		insert into likelist
+		(user_id,goods_id)
+		values
+		(#{user_id},#{goods_id})
+	</insert>
+
+	<delete id="delete" parameterType="int">
+		delete from likelist where
+		id=#{id}
+	</delete>
+	
+	<resultMap type="LikeList" id="likeListMap" autoMapping="true">
+		<id column="l_id" property="id"/>
+		<association property="goods" javaType="Goods">
+			<id column="goods_id" property="id"/>
+			<result column="name" property="name"/>
+			<result column="store_id" property="store_id"/>
+			<result column="price" property="price"/>
+			<result column="stock" property="stock"/>
+			<result column="discount" property="discount"/>
+			<result column="type" property="type"/>
+			<result column="varieties" property="varieties"/>
+			<result column="height" property="height"/>
+			<result column="diameter" property="diameter"/>
+			<result column="punta_trail" property="punta_trail"/>
+			<result column="survival" property="survival"/>
+			<result column="life" property="life"/>
+			<result column="fruit_year" property="fruit_year"/>
+			<result column="habits" property="habits"/>
+			<result column="culture_notes" property="culture_notes"/>
+			<result column="link" property="link"/>
+			<result column="intro" property="intro"/>
+			<result column="img" property="img"/>
+			<result column="goods_address" property="goods_address"/>
+			<result column="category_id" property="category_id"/> 
+			<result column="status" property="status" />
+		</association>
+	</resultMap>
+	
+	<select id="list" resultMap="likeListMap" parameterType="map">
+		SELECT *,l.id as 'l_id' FROM likelist as l LEFT JOIN goods as g ON l.goods_id = g.id WHERE l.user_id = #{user_id}
+	</select>
+
+	<select id="list_count" parameterType="map" resultType="int">
+		SELECT count(*) FROM likelist as l LEFT JOIN goods as g ON l.goods_id = g.id WHERE l.user_id = #{user_id}
+	</select>
+
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xtk.shop.model.Images">
+	<insert id="add" parameterType="com.xtk.shop.model.Images">
+		insert into good_img
+		(goods_id,img)
+		values
+		(#{goods_id},#{img})
+	</insert>
+
+	<update id="update" parameterType="com.xtk.shop.model.Images">
+		update good_img
+		goods_id=#{goods_id},img=#{img}
+		where id=#{id}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		delete from good_img where
+		id=#{id}
+	</delete>
+
+	<delete id="deleteByGoodsId">
+		delete from good_img where goods_id=#{goods_id}
+	</delete>
+	
+	<select id="list" parameterType="int" resultType="Images">
+		select * from
+		good_img where goods_id=#{goods_id}
+	</select>
+
+	<select id="list_count" resultType="int" parameterType="int">
+		select
+		count(*) from
+		good_img where goods_id=#{goods_id}
+	</select>
+</mapper>

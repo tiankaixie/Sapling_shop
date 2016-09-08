@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xtk.shop.model.Goods">
+	<insert id="add" parameterType="com.xtk.shop.model.Goods">
+		insert into goods
+		(name,store_id,price,stock,discount,type,varieties,height,diameter,punta_trail,survival,life,fruit_year,habits,culture_notes,link,intro,img,goods_address,category_id,status)
+		values
+		(#{name},#{store_id},#{price},#{stock},#{discount},#{type},#{varieties},#{height},#{diameter},#{punta_trail},#{survival},#{life},#{fruit_year},#{habits},#{culture_notes},#{link},#{intro},#{img},#{goods_address},#{category_id},#{status})
+	</insert>
+
+	<update id="update" parameterType="com.xtk.shop.model.Goods">
+		update goods
+		set name=#{name},store_id=#{store_id},price=#{price},stock=#{stock},discount=#{discount},type=#{type},varieties=#{varieties},height=#{height},diameter=#{diameter},punta_trail=#{punta_trail},survival=#{survival},life=#{life},fruit_year=#{fruit_year},habits=#{habits},culture_notes=#{culture_notes},link=#{link},intro=#{intro},img=#{img},goods_address=#{goods_address},category_id=#{category_id},status =#{status}
+		where id=#{id}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		delete from goods where
+		id=#{id}
+	</delete>
+
+	<select id="load_by_username" parameterType="map" resultType="User">
+		select * from
+		user_login where username=#{name}
+		and type=#{type}
+	</select>
+
+	<select id="load" parameterType="int" resultType="Goods">
+		select * from
+		goods where id=#{id}
+	</select>
+
+	<select id="list" resultMap="goodsMap" parameterType="map">
+		select *,g.id as 'g_id',c.name as 'c_name' from goods as g LEFT JOIN
+		category as c ON g.category_id = c.id where
+		<if test="store_id!=null"> store_id = #{store_id} </if>
+		<if test="category_id!=null"> category_id = #{category_id} </if>
+
+		limit #{pageOffset},#{pageSize}
+	</select>
+
+	<select id="list_count" resultType="int" parameterType="map">
+		select count(*) from goods where
+		<if test="store_id!=null"> store_id = #{store_id} </if>
+		<if test="category_id!=null"> category_id = #{category_id} </if>
+	</select>
+
+	<!-- #{}会使用？进行替代 ${}则是会完整将字符串完成替代 -->
+	<!-- 动态SQL -->
+	<select id="find" resultType="Goods" parameterType="map">
+		select * from goods
+		<where>
+			<if test="name!=null"> and name like #{name} </if>
+			<if test="type!=null"> and type=#{type}</if>
+			<if test="store_id!=null">and store_id =#{store_id}</if>
+		</where>
+		<if test="sort!=null">order by ${sort} </if>
+		<choose>
+			<when test="order!=null">${order}</when>
+		</choose>
+		limit #{pageOffset},#{pageSize}
+	</select>
+
+	<select id="find_count" parameterType="map" resultType="int">
+		select count(*) from goods
+		<where>
+			<if test="name!=null"> and name like #{name} </if>
+			<if test="type!=null"> and type=#{type}</if>
+			<if test="store_id!=null">and store_id =#{store_id}</if>
+		</where>
+	</select>
+
+	<select id="get_last_insert_id" resultType="int">
+		select
+		LAST_INSERT_ID()
+	</select>
+
+	<select id="discover" resultMap="goodsMap">
+		SELECT *,g.id as 'g_id',c.name
+		as 'c_name' FROM
+		goods as g LEFT JOIN category as c ON g.category_id =
+		c.id
+		WHERE g.id >= (SELECT floor(RAND() * (SELECT MAX(id) FROM goods)))
+		ORDER BY g.id LIMIT 6
+	</select>
+
+	<resultMap type="Goods" id="goodsMap" autoMapping="true">
+		<id column="g_id" property="id" />
+		<association property="category" javaType="Category">
+			<id column="category_id" property="id" />
+			<result column="c_name" property="name" />
+			<result column="latin" property="latin" />
+			<result column="species" property="species" />
+
+		</association>
+	</resultMap>
+	<select id="anythingElse" resultType="goods" parameterType="map">
+		SELECT * FROM goods
+		WHERE store_id = #{store_id}
+		AND id >= (SELECT
+		floor(RAND() * (SELECT
+		MAX(id) FROM goods)))
+		ORDER BY id LIMIT 4
+	</select>
+
+	<select id="listAll" resultType="Goods" parameterType="map">
+		select * from goods
+		<if test="sort!=null">order by ${sort} </if>
+		<choose>
+			<when test="order!=null">${order}</when>
+		</choose>
+		limit #{pageOffset},#{pageSize}
+	</select>
+
+	<select id="listAll_count" resultType="int" parameterType="map">
+		select count(*) from goods
+		<if test="sort!=null">order by ${sort} </if>
+		<choose>
+			<when test="order!=null">${order}</when>
+		</choose>
+	</select>
+
+	<select id="quickSearch" resultMap="goodsMap" parameterType="map">
+		SELECT *,g.id as 'g_id',c.name as 'c_name' FROM
+		goods as g LEFT JOIN
+		category as c ON g.category_id = c.id
+		<where>
+			<if test="name!=null"> and name like #{name} </if>
+			<if test="type!=null"> and type=#{type}</if>
+			<if test="species!=null">and species like #{species}</if>
+			<if test="lowPrice!=null">
+				and price &gt;=#{lowPrice} </if>
+			<if test="highPrice!=null">and price &lt;=#{highPrice}</if>
+		</where>
+		<if test="sort!=null">order by ${sort} </if>
+		<choose>
+			<when test="order!=null">${order}</when>
+		</choose>
+		limit #{pageOffset},#{pageSize}
+	</select>
+	<select id="quickSearch_count" parameterType="map" resultType="int">
+		SELECT count(*) FROM
+		goods as g LEFT JOIN category as c ON g.category_id = c.id
+		<where>
+			<if test="name!=null"> and name like #{name} </if>
+			<if test="type!=null"> and type=#{type}</if>
+			<if test="species!=null">and species like #{species}</if>
+			<if test="lowPrice!=null">
+				and price &gt;=#{lowPrice} </if>
+			<if test="highPrice!=null">and price &lt;=#{highPrice}</if>
+		</where>
+	</select>
+</mapper>
